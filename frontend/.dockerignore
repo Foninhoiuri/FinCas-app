@@ -1,0 +1,12 @@
+node_modules
+node_modules_old
+npm-debug.log
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+README.md
+dist
+build
+*.log

@@ -1,0 +1,24 @@
+{
+  "name": "financas-backend",
+  "version": "1.0.0",
+  "description": "Backend do app financeiro pessoal",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.1.1",
+    "pg": "^8.13.1",
+    "sharp": "^0.34.5",
+    "socket.io": "^4.8.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  }
+}

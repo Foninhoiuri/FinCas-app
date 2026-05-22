@@ -1,0 +1,53 @@
+{
+  "name": "financas-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@heroui/autocomplete": "^2.3.11",
+    "@heroui/button": "^2.2.10",
+    "@heroui/card": "^2.2.10",
+    "@heroui/checkbox": "^2.3.9",
+    "@heroui/chip": "^2.2.7",
+    "@heroui/dropdown": "^2.3.10",
+    "@heroui/input": "^2.4.10",
+    "@heroui/modal": "^2.2.8",
+    "@heroui/popover": "^2.3.10",
+    "@heroui/progress": "^2.2.7",
+    "@heroui/radio": "^2.3.9",
+    "@heroui/react": "^2.8.10",
+    "@heroui/scroll-shadow": "^2.3.6",
+    "@heroui/select": "^2.4.10",
+    "@heroui/skeleton": "^2.2.6",
+    "@heroui/slider": "^2.4.8",
+    "@heroui/spinner": "^2.2.7",
+    "@heroui/switch": "^2.2.9",
+    "@heroui/tabs": "^2.2.8",
+    "@heroui/tooltip": "^2.2.8",
+    "@tanstack/react-query": "^5.64.2",
+    "date-fns": "^4.1.0",
+    "emoji-picker-react": "^4.12.0",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-easy-crop": "^5.5.7",
+    "react-router-dom": "^7.1.1",
+    "recharts": "^3.8.1",
+    "socket.io-client": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.7"
+  }
+}

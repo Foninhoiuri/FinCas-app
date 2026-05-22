@@ -1,0 +1,17 @@
+node_modules
+node_modules_old
+npm-debug.log
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+README.md
+
+# Não copiar dados de clientes para dentro da imagem
+uploads
+*.db
+*.sqlite
+dist
+build
+*.log

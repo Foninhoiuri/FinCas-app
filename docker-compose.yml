@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # ─── PostgreSQL ────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: financas-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: financas_user
+      POSTGRES_PASSWORD: financas_secret_2024
+      POSTGRES_DB: financas_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U financas_user -d financas_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend (Node.js / Express) ───────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: financas-backend
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://financas_user:financas_secret_2024@db:5432/financas_db
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL:-http://localhost:8080}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
+      EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+  # ─── Frontend (React / Vite) ───────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: financas-frontend
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    volumes:
+      - ./backend/uploads:/usr/share/nginx/html/uploads:ro
+
+  # ─── Console de Logs (Real-time) ───────────────────────────
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: financas-logs
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8888:8080"
+    environment:
+      - DOZZLE_LEVEL=info
+    restart: always
+
+volumes:
+  pgdata:
