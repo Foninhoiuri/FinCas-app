@@ -6,8 +6,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-financas_user}
-      # Sem default: o compose falha em vez de subir com senha conhecida
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no .env/Portainer}
+      # DEFINA DB_PASSWORD nas variáveis da Stack (Portainer) ou no .env.
+      # Sem valor, o Postgres recusa iniciar — de propósito: é melhor do que
+      # subir com uma senha default conhecida.
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME:-financas_db}
     ports:
       # Só no loopback do host — para acessar de fora, use túnel SSH
