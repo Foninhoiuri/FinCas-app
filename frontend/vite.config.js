@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // Alvo do proxy de desenvolvimento. Configure VITE_API_TARGET no .env do
-// frontend para apontar para outro host (ex.: http://192.168.1.140:3001).
+// frontend para apontar para outro host (ex.: http://IP-DO-SERVIDOR:3001).
 // O padrão é localhost, que funciona em qualquer máquina sem configuração.
 const API_TARGET = process.env.VITE_API_TARGET || 'http://localhost:3001';
 
