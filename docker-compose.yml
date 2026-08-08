@@ -68,11 +68,6 @@ services:
     networks:
       - internal
       - proxy
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.fincas.rule=Host(`${APP_HOST:-fincas.local}`)'
-      - 'traefik.http.routers.fincas.entrypoints=web'
-      - 'traefik.http.services.fincas.loadbalancer.server.port=80'
 
   # ─── Console de Logs (Dozzle) ──────────────────────────
   dozzle:
