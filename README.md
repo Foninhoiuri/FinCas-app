@@ -110,6 +110,24 @@ docker exec financas-db pg_dump -U postgres -d financas > financas-backup.sql
 
 O dump contém **dados financeiros reais**. Nunca versionar.
 
+## Deploy (Portainer)
+
+**Pré-requisito, uma vez por servidor:** a rede compartilhada precisa existir
+antes de qualquer stack, senão o deploy falha com
+`network proxy declared as external, but could not be found`.
+
+```bash
+docker network create proxy
+```
+
+(A stack `infra-proxy` cria essa rede junto com o Traefik. Se você já subiu ela,
+não precisa do comando acima.)
+
+Depois, no Portainer: **Stacks → Add stack → Repository**, apontando para este
+repositório. Preencha as variáveis marcadas como OBRIGATÓRIAS no `.env.example`
+em **Environment variables** — elas não têm valor padrão, e sem elas o serviço
+que as usa não sobe.
+
 ## Segurança
 
 - `backend/.env` (com a `DATABASE_URL`) e `backend/uploads/` (fotos reais de
