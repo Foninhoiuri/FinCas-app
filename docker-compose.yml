@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ─── PostgreSQL ────────────────────────────────────────
   db:
@@ -7,19 +5,24 @@ services:
     container_name: financas-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: financas_user
-      POSTGRES_PASSWORD: financas_secret_2024
-      POSTGRES_DB: financas_db
+      POSTGRES_USER: ${DB_USER:-financas_user}
+      # Sem default: o compose falha em vez de subir com senha conhecida
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no .env/Portainer}
+      POSTGRES_DB: ${DB_NAME:-financas_db}
     ports:
-      - '5432:5432'
+      # Só no loopback do host — para acessar de fora, use túnel SSH
+      - '127.0.0.1:5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./backend/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U financas_user -d financas_db']
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
       interval: 5s
       timeout: 5s
       retries: 5
+    mem_limit: 512m
+    networks:
+      - internal
 
   # ─── Backend (Node.js / Express) ───────────────────────
   backend:
@@ -29,11 +32,11 @@ services:
     container_name: financas-backend
     restart: unless-stopped
     ports:
-      - '3001:3001'
+      - '${BACKEND_PORT:-3001}:3001'
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: postgresql://financas_user:financas_secret_2024@db:5432/financas_db
+      DATABASE_URL: postgresql://${DB_USER:-financas_user}:${DB_PASSWORD}@db:5432/${DB_NAME:-financas_db}
       EVOLUTION_API_URL: ${EVOLUTION_API_URL:-http://localhost:8080}
       EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
       EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE:-}
@@ -42,6 +45,9 @@ services:
         condition: service_healthy
     volumes:
       - ./backend/uploads:/app/uploads
+    mem_limit: 768m
+    networks:
+      - internal
 
   # ─── Frontend (React / Vite) ───────────────────────────
   frontend:
@@ -51,23 +57,45 @@ services:
     container_name: financas-frontend
     restart: unless-stopped
     ports:
-      - '80:80'
+      - '${FRONTEND_PORT:-80}:80'
     depends_on:
       - backend
     volumes:
       - ./backend/uploads:/usr/share/nginx/html/uploads:ro
+    mem_limit: 128m
+    networks:
+      - internal
+      - proxy
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.fincas.rule=Host(`${APP_HOST:-fincas.local}`)'
+      - 'traefik.http.routers.fincas.entrypoints=websecure'
+      - 'traefik.http.routers.fincas.tls.certresolver=le'
+      - 'traefik.http.services.fincas.loadbalancer.server.port=80'
 
-  # ─── Console de Logs (Real-time) ───────────────────────────
+  # ─── Console de Logs (Dozzle) ──────────────────────────
   dozzle:
     image: amir20/dozzle:latest
     container_name: financas-logs
+    restart: unless-stopped
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      # Somente leitura: com acesso de escrita ao socket, um comprometimento
+      # do Dozzle vira controle total do host
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
-      - "8888:8080"
+      # Só no loopback: o Dozzle não tem autenticação e mostra os logs de TODOS
+      # os containers — inclusive linhas com dados sensíveis. Acesse por túnel SSH.
+      - '127.0.0.1:8888:8080'
     environment:
       - DOZZLE_LEVEL=info
-    restart: always
+    mem_limit: 128m
+    networks:
+      - internal
 
 volumes:
   pgdata:
+
+networks:
+  internal:
+  proxy:
+    external: true
